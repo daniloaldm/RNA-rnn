@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import torch.nn as nn
 import torch
-# import torchvision
+import random
 
 ''' concat_all_lines_in_column()
     Esta funcao concatena todos as linhas de uma coluna específica que possua textos.
@@ -54,7 +54,8 @@ n_words = len(dictionary)
 # guardando a coluna de predicoes 'Sentiment' inserindo '2' nos dados invalidos
 predict_column = remove_and_insert(table, 'Sentiment', '2')
 
-n_categories = len(np.unique(predict_column))
+all_categories = np.unique(predict_column)
+n_categories = len(all_categories)
 
 ''' word_to_tensor(), text_to_tensor()
     Estas funcoes irao transformar as palavras de um dicionario qualquer em vetores binarios.
@@ -71,35 +72,20 @@ n_categories = len(np.unique(predict_column))
 '''
 ''' funcao que monta o vetor binario dado uma palavra '''
 def word_to_tensor(word):
-    tensor = np.zeros((1, n_words))
-
-    for i in range(n_words):
-        if dictionary[i] == word:
-            tensor[0][i] = 1
-
+    tensor = torch.zeros(1, n_words)
+    tensor[0][letterToIndex(letter)] = 1
     return tensor
 
 ''' funcao que monta uma matriz binaria dado um texto '''
-def text_to_tensor(text):
-    token_text = str(text).split()
-    tensor = np.zeros((len(token_text), n_words))
-    
-    for word in range(len(token_text)):
-        for i in range(n_words):
-            if token_text[word] == dictionary[i] :
-                tensor[word] = word_to_tensor(token_text[word])
-            
+def line_to_tensor(line):
+    tensor = torch.zeros(len(line), 1, n_words)
+    for li, word in enumerate(line):
+        tensor[li][0][word_to_index(word)] = 1
     return tensor
 
-
-print(dictionary)
-# print(word_to_tensor('its'))
-# print(text_to_tensor('its really nice place'))
-# '''
-
-
-# Find letter index from all_letters, e.g. "a" = 0
-def wordToIndex(word):
+    
+''' funcao encontra o index da palvra '''
+def word_to_index(word):
     itemindex, = np.where(dictionary==word)
     # print(itemindex[0])
     if(itemindex.size > 0):
@@ -107,20 +93,10 @@ def wordToIndex(word):
     else:
         return 0
 
-# Just for demonstration, turn a letter into a <1 x n_letters> Tensor
-def wordToTensor(word):
-    tensor = torch.zeros(1, n_words)
-    tensor[0][letterToIndex(letter)] = 1
-    return tensor
-
-# Turn a line into a <line_length x 1 x n_letters>,
-# or an array of one-hot letter vectors
-def lineToTensor(line):
-    tensor = torch.zeros(len(line), 1, n_words)
-    for li, word in enumerate(line):
-        tensor[li][0][wordToIndex(word)] = 1
-    return tensor
-
+print(dictionary)
+# print(word_to_tensor('its'))
+# print(text_to_tensor('its really nice place'))
+# '''
 
 class RNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -145,16 +121,37 @@ class RNN(nn.Module):
 n_hidden = 128
 rnn = RNN(n_words, n_hidden, n_categories)
 
+''' Teste com palavra '''
 # input = wordToTensor('before')
 # hidden = torch.zeros(1, n_hidden)
-
 # output, next_hidden = rnn(input, hidden)
-
 # print(output)
 
-input = lineToTensor('its nice')
+''' Teste com texto '''
+input = line_to_tensor('its nice')
 hidden = torch.zeros(1, n_hidden)
-
 output, next_hidden = rnn(input[0], hidden)
-
 print(output)
+
+''' funcao encontra o index da palvra '''
+def categoryFromOutput(output):
+    top_n, top_i = output.topk(1)
+    category_i = top_i[0].item()
+    return all_categories[category_i], category_i
+
+print(categoryFromOutput(output))
+
+# Teste atual
+def randomChoice(l):
+    return l[random.randint(0, len(l) - 1)]
+
+def randomTrainingExample():
+    category = randomChoice(all_categories)
+    line = randomChoice(category_lines[category])
+    category_tensor = torch.tensor([all_categories.index(category)], dtype=torch.long)
+    line_tensor = lineToTensor(line)
+    return category, line, category_tensor, line_tensor
+
+for i in range(10):
+    category, line, category_tensor, line_tensor = randomTrainingExample()
+    print('category =', category, '/ line =', line)
