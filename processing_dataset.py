@@ -142,16 +142,37 @@ def categoryFromOutput(output):
 print(categoryFromOutput(output))
 
 # Teste atual
-def randomChoice(l):
-    return l[random.randint(0, len(l) - 1)]
+# def randomChoice(l):
+#     return l[random.randint(0, len(l) - 1)]
 
-def randomTrainingExample():
-    category = randomChoice(all_categories)
-    line = randomChoice(category_lines[category])
-    category_tensor = torch.tensor([all_categories.index(category)], dtype=torch.long)
-    line_tensor = lineToTensor(line)
-    return category, line, category_tensor, line_tensor
+# def randomTrainingExample():
+#     category = randomChoice(all_categories)
+#     line = randomChoice(category_lines[category])
+#     category_tensor = torch.tensor([all_categories.index(category)], dtype=torch.long)
+#     line_tensor = lineToTensor(line)
+#     return category, line, category_tensor, line_tensor
 
-for i in range(10):
-    category, line, category_tensor, line_tensor = randomTrainingExample()
-    print('category =', category, '/ line =', line)
+# for i in range(10):
+#     category, line, category_tensor, line_tensor = randomTrainingExample()
+#     print('category =', category, '/ line =', line)
+
+# criterion = nn.NLLLoss()
+
+# learning_rate = 0.005 # If you set this too high, it might explode. If too low, it might not learn
+
+# def train(category_tensor, line_tensor):
+#     hidden = rnn.initHidden()
+
+#     rnn.zero_grad()
+
+#     for i in range(line_tensor.size()[0]):
+#         output, hidden = rnn(line_tensor[i], hidden)
+
+#     loss = criterion(output, category_tensor)
+#     loss.backward()
+
+#     # Add parameters' gradients to their values, multiplied by learning rate
+#     for p in rnn.parameters():
+#         p.data.add_(p.grad.data, alpha=-learning_rate)
+
+#     return output, loss.item()
