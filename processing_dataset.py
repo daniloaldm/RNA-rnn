@@ -146,23 +146,23 @@ def categoryFromOutput(output):
 
 # print(categoryFromOutput(output))
 
-# Teste atual
+# É preciso ajustar aqui na linha 159
 def randomChoice(l):
     return l[random.randint(0, len(l) - 1)]
 
 def randomTrainingExample():
     n_random = random.randint(0,all_categories.size-1)
 
-    category = all_categories[n_random] # random de todos os sentiments
-    line = all_text_review[n_random] # aqui é o texto do indice do sentiments
+    category = all_categories[n_random]
+    line = all_text_review[n_random]
 
-    category_tensor = torch.tensor([all_categories[n_random]], dtype=torch.long)
-    line_tensor = line_to_tensor(line) 
+    category_tensor = torch.tensor([n_random], dtype=torch.long)
+    line_tensor = line_to_tensor(line)
     return category, line, category_tensor, line_tensor
 
-for i in range(10):
-    category, category_tensor, line_tensor = randomTrainingExample()
-    print('category =', category, '/ caregory_tensor =', category_tensor)
+# for i in range(10):
+#     category, line, category_tensor, line_tensor = randomTrainingExample()
+#     print('category =', category, '/ caregory_tensor =', category_tensor)
 
 # criterion = nn.NLLLoss()
 
@@ -174,7 +174,16 @@ for i in range(10):
 #     rnn.zero_grad()
 
 #     for i in range(line_tensor.size()[0]):
+#         # print(line_tensor)
+#         # exit()
 #         output, hidden = rnn(line_tensor[i], hidden)
+
+#     print(output.size())
+#     print(output)
+#     print(category_tensor.size())
+#     print(category_tensor)
+
+#     # exit()
 
 #     loss = criterion(output, category_tensor)
 #     loss.backward()
@@ -188,6 +197,8 @@ for i in range(10):
 # n_iters = 100000
 # print_every = 5000
 # plot_every = 1000
+
+
 
 # # Keep track of losses for plotting
 # current_loss = 0
@@ -203,7 +214,7 @@ for i in range(10):
 # start = time.time()
 
 # for iter in range(1, n_iters + 1):
-#     category, category_tensor, line_tensor = randomTrainingExample()
+#     category, line, category_tensor, line_tensor = randomTrainingExample()
 #     output, loss = train(category_tensor, line_tensor)
 #     current_loss += loss
 
