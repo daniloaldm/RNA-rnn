@@ -3,6 +3,8 @@ import numpy as np
 import torch.nn as nn
 import torch
 import random
+import time
+import math
 
 ''' concat_all_lines_in_column()
     Esta funcao concatena todos as linhas de uma coluna específica que possua textos.
@@ -52,10 +54,13 @@ dictionary = np.unique(concat_all_lines_in_column(table, 'Review_Text'))
 n_words = len(dictionary)
 
 # guardando a coluna de predicoes 'Sentiment' inserindo '2' nos dados invalidos
-predict_column = remove_and_insert(table, 'Sentiment', '2')
+all_categories = remove_and_insert(table, 'Sentiment', '2')
+all_text_review = table['Review_Text'].tolist()
 
-all_categories = np.unique(predict_column)
-n_categories = len(all_categories)
+n_categories = len(np.unique(all_categories))
+
+# print(all_text_review)
+# exit()
 
 ''' word_to_tensor(), text_to_tensor()
     Estas funcoes irao transformar as palavras de um dicionario qualquer em vetores binarios.
@@ -139,22 +144,25 @@ def categoryFromOutput(output):
     category_i = top_i[0].item()
     return all_categories[category_i], category_i
 
-print(categoryFromOutput(output))
+# print(categoryFromOutput(output))
 
 # Teste atual
-# def randomChoice(l):
-#     return l[random.randint(0, len(l) - 1)]
+def randomChoice(l):
+    return l[random.randint(0, len(l) - 1)]
 
-# def randomTrainingExample():
-#     category = randomChoice(all_categories)
-#     line = randomChoice(category_lines[category])
-#     category_tensor = torch.tensor([all_categories.index(category)], dtype=torch.long)
-#     line_tensor = lineToTensor(line)
-#     return category, line, category_tensor, line_tensor
+def randomTrainingExample():
+    n_random = random.randint(0,all_categories.size-1)
 
-# for i in range(10):
-#     category, line, category_tensor, line_tensor = randomTrainingExample()
-#     print('category =', category, '/ line =', line)
+    category = all_categories[n_random] # random de todos os sentiments
+    line = all_text_review[n_random] # aqui é o texto do indice do sentiments
+
+    category_tensor = torch.tensor([all_categories[n_random]], dtype=torch.long)
+    line_tensor = line_to_tensor(line) 
+    return category, line, category_tensor, line_tensor
+
+for i in range(10):
+    category, category_tensor, line_tensor = randomTrainingExample()
+    print('category =', category, '/ caregory_tensor =', category_tensor)
 
 # criterion = nn.NLLLoss()
 
@@ -176,3 +184,36 @@ print(categoryFromOutput(output))
 #         p.data.add_(p.grad.data, alpha=-learning_rate)
 
 #     return output, loss.item()
+
+# n_iters = 100000
+# print_every = 5000
+# plot_every = 1000
+
+# # Keep track of losses for plotting
+# current_loss = 0
+# all_losses = []
+
+# def timeSince(since):
+#     now = time.time()
+#     s = now - since
+#     m = math.floor(s / 60)
+#     s -= m * 60
+#     return '%dm %ds' % (m, s)
+
+# start = time.time()
+
+# for iter in range(1, n_iters + 1):
+#     category, category_tensor, line_tensor = randomTrainingExample()
+#     output, loss = train(category_tensor, line_tensor)
+#     current_loss += loss
+
+#     # Print iter number, loss, name and guess
+#     if iter % print_every == 0:
+#         guess, guess_i = categoryFromOutput(output)
+#         correct = '✓' if guess == category else '✗ (%s)' % category
+#         print('%d %d%% (%s) %.4f %s / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, line, guess, correct))
+
+#     # Add current loss avg to list of losses
+#     if iter % plot_every == 0:
+#         all_losses.append(current_loss / plot_every)
+#         current_loss = 0
