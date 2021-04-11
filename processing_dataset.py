@@ -23,6 +23,17 @@ def concat_all_lines_in_column(pd_dataset, column_name):
 
     return result_concat
 
+''' convert_string_text()
+    Converte todos os indices de um array para string e lowcase
+'''
+def convert_string_text(array):
+    result_array = []
+
+    for text in array:
+        result_array.append(str(text).lower())
+    
+    return result_array
+
 ''' remove_and_insert()
     Esta funcao remove textos inseridos em uma coluna da qual nao deve ter e insere o
     valor solicitado no lugar do texto.
@@ -57,7 +68,7 @@ n_words = len(dictionary)
 
 # guardando a coluna de predicoes 'Sentiment' inserindo '2' nos dados invalidos
 all_sentiment = remove_and_insert(table, 'Sentiment', '2')
-all_text_review = table['Review_Text'].tolist()
+all_text_review = convert_string_text(table['Review_Text'].tolist())
 
 all_categories = np.unique(all_sentiment).tolist()
 n_categories = len(all_categories)
