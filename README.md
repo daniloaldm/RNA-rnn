@@ -21,7 +21,7 @@ jupyter notebook
 ```
 
 ## Resultados
-Foi ultilizado a base de dados do arquivo chennai_reviews.csv, uma taxa de treinamento de 0.005 e 1000 iterações.
+Foi utilizado a base de dados do arquivo chennai_reviews.csv, uma taxa de treinamento de 0.005 e 1000 iterações.
 
 Abaixo podemos ver alguns resultados obtidos durante a execução do treino em alguns exemplos. O formato dos resultados são: **texto / predição ✓** ou **texto / predição ✗ (predição correta)**.
 
