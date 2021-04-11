@@ -5,6 +5,8 @@ import torch
 import random
 import time
 import math
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 ''' concat_all_lines_in_column()
     Esta funcao concatena todos as linhas de uma coluna específica que possua textos.
@@ -13,7 +15,7 @@ import math
 def concat_all_lines_in_column(pd_dataset, column_name):
     result_concat = []
 
-    for line in range(18): #pd_dataset[column_name].size
+    for line in range(pd_dataset[column_name].size): #pd_dataset[column_name].size
         result_concat = np.concatenate(
         (result_concat, str(pd_dataset[column_name][line]).lower().split()),
             axis=0
@@ -28,7 +30,7 @@ def concat_all_lines_in_column(pd_dataset, column_name):
 def remove_and_insert(pd_dataset, column_name, value):
     result_remove = []
 
-    for line in range(18): #pd_dataset[column_name].size
+    for line in range(pd_dataset[column_name].size): #pd_dataset[column_name].size
         element = str(pd_dataset[column_name][line])
 
         if element.isnumeric():
@@ -134,21 +136,25 @@ rnn = RNN(n_words, n_hidden, n_categories)
 # print(output)
 
 ''' Teste com texto '''
-input = line_to_tensor('its nice')
-hidden = torch.zeros(1, n_hidden)
-output, next_hidden = rnn(input[0], hidden)
-print(output)
+# input = line_to_tensor('its nice')
+# hidden = torch.zeros(1, n_hidden)
+# output, next_hidden = rnn(input[0], hidden)
+# print(output)
 
+''' 
+    funcao criada para "traduzir" a saida da rede (output) que e um tensor com
+    as probabilidades de cada categoria 
+'''
 def categoryFromOutput(output):
     top_n, top_i = output.topk(1)
     category_i = top_i[0].item()
     return all_categories[category_i], category_i
 
-def randomChoice(l):
-    return l[random.randint(0, len(l) - 1)]
-
+'''
+    funcao criada para randomizar uma entrada inicial para o treinamento
+'''
 def randomTrainingExample():
-    n_random = random.randint(0, 18 - 1) #len(all_text_review)
+    n_random = random.randint(0, len(all_text_review) - 1) #len(all_text_review)
 
     category = all_sentiment[n_random]
     line = all_text_review[n_random]
@@ -162,6 +168,10 @@ def randomTrainingExample():
 #     category, line, category_tensor, line_tensor = randomTrainingExample()
 #     print('category =', category, '/ caregory_tensor =', category_tensor)
 
+
+'''
+    aqui contem as variaveis necessarias e a funcao para treinamento dos dados
+'''
 criterion = nn.NLLLoss()
 
 learning_rate = 0.005 # If you set this too high, it might explode. If too low, it might not learn
@@ -183,9 +193,9 @@ def train(category_tensor, line_tensor):
 
     return output, loss.item()
 
-n_iters = 100000
-print_every = 5000
-plot_every = 1000
+n_iters = 1000
+print_every = 50
+plot_every = 10
 
 # Keep track of losses for plotting
 current_loss = 0
@@ -215,3 +225,49 @@ for iter in range(1, n_iters + 1):
     if iter % plot_every == 0:
         all_losses.append(current_loss / plot_every)
         current_loss = 0
+
+plt.figure()
+plt.plot(all_losses)
+plt.show()
+
+# Keep track of correct guesses in a confusion matrix
+confusion = torch.zeros(n_categories, n_categories)
+n_confusion = 100
+
+# Just return an output given a line
+def evaluate(line_tensor):
+    hidden = rnn.initHidden()
+
+    for i in range(line_tensor.size()[0]):
+        output, hidden = rnn(line_tensor[i], hidden)
+
+    return output
+
+# Go through a bunch of examples and record which are correctly guessed
+for i in range(n_confusion):
+    category, line, category_tensor, line_tensor = randomTrainingExample()
+    output = evaluate(line_tensor)
+    guess, guess_i = categoryFromOutput(output)
+    category_i = all_categories.index(category)
+    confusion[category_i][guess_i] += 1
+
+# Normalize by dividing every row by its sum
+for i in range(n_categories):
+    confusion[i] = confusion[i] / confusion[i].sum()
+
+# Set up plot
+fig = plt.figure()
+ax = fig.add_subplot(111)
+cax = ax.matshow(confusion.numpy())
+fig.colorbar(cax)
+
+# Set up axes
+ax.set_xticklabels([''] + all_categories, rotation=90)
+ax.set_yticklabels([''] + all_categories)
+
+# Force label at every tick
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+
+# sphinx_gallery_thumbnail_number = 2
+plt.show()
