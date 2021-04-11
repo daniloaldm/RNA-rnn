@@ -27,7 +27,7 @@ Abaixo podemos ver alguns resultados obtidos durante a execução do treino em a
 
 ![Figure_3](https://user-images.githubusercontent.com/51512175/114290613-45464f00-9a57-11eb-8a5f-55e48aaf5660.png)
 
-Abaixo temos um gráfico que representa a perda histórica e que mostra o aprendizado da rede.
+Abaixo temos um gráfico que representa a perda histórica e que mostra o aprendizado da rede. As altas variações é explicada pelo número de iterações que foi usado (1000). Por falta de tempo não usamos um número maior para este teste.
 
 ![Figure_1](https://user-images.githubusercontent.com/51512175/114290668-a0784180-9a57-11eb-82ba-f12a6af68eac.png)
 
